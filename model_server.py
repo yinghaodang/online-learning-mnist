@@ -1,21 +1,25 @@
 import torch
 import torch.nn.functional as F
-from torchvision import datasets, transforms
+from torchvision import transforms
 import redis
-import pickle
 import gradio as gr
 from PIL import Image
-
+import io
+# 在使用序列化和反序列化的过程中必须导入
 from utils.models.mnist_cnn import Net
+
 
 # ======加载数据集 & 加载模型========
 def load_model():
-    redis_params = dict(host='localhost', password='redis_password', port=6379, db=0)
-    model_name = "online_ml_model"
+    redis_params = dict(host='10.215.58.30', password='redis_password', port=6379, db=0)
+    # model_name = "online_ml_model"
+    model_name = "mnist-2023-10-29 14:43"
     r = redis.StrictRedis(**redis_params)
-    clf = pickle.loads(r.get(model_name))
-
-    return clf
+    model = r.get(model_name)
+    buffer = io.BytesIO(model)
+    buffer.seek(0)
+    model = torch.load(buffer)
+    return model
 
 model = load_model()
 
@@ -47,4 +51,7 @@ def mnist_infer(data):
 
 inputs = gr.inputs.Image()
 outputs = gr.outputs.Label(num_top_classes=3)
-gr.Interface(fn=mnist_infer, inputs=inputs, outputs=outputs).launch()
+gr.Interface(fn=mnist_infer, inputs=inputs, outputs=outputs).launch(share=False,
+                                                                    debug=False,
+                                                                    server_name="0.0.0.0",
+                                                                    port=7861)

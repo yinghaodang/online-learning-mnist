@@ -1,0 +1,34 @@
+FROM ubuntu:18.04
+
+WORKDIR /root/online-learning-demo/
+
+RUN sed -i s/archive.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list && \
+    sed -i s/security.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y \
+        iputils-ping \
+        net-tools \
+        curl \
+        telnet \
+        wget \
+        vim &&\
+    rm -rf /var/lib/apt/lists/*  # 清理APT缓存
+
+COPY docker/python-build.sh /root/online-learning-demo/
+
+RUN bash /root/online-learning-demo/python-build.sh
+
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu --proxy=10.215.59.186:7890 && \
+    pip install redis==5.0.1 \
+        gradio==3.41.2 \
+        Pillow==10.1.0
+
+COPY model_server.py utils/ /root/online-learning-demo/
+
+COPY utils /root/online-learning-demo/utils
+
+# VOLUME /root/online-learning-demo/model_server.py
+
+EXPOSE 7860
+
+CMD python model_server.py

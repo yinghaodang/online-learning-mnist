@@ -24,6 +24,7 @@ def write_data():
         bootstrap_servers=bootstrap_servers,
         value_serializer=lambda x: dumps(x).encode('utf-8')
     )
+    print("开始传输")
     while True:
         for image, target in dataset:
             cur_data = {
@@ -34,5 +35,7 @@ def write_data():
             producer.send(topic, value=cur_data)
 
             sleep(1 / max_msg_per_second)
+        print("传输完成一次")
+
 
 write_data()

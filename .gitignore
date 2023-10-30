@@ -168,3 +168,7 @@ gradio_demo.py
 mnist_data/
 pyflink-example/
 mnist_cnn.pt
+*.tar.gz
+learn/
+*.bak
+learn-kafka.py
