@@ -172,3 +172,5 @@ mnist_cnn.pt
 learn/
 *.bak
 learn-kafka.py
+cache_dir/
+cache_torch/

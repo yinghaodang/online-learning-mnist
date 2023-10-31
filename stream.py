@@ -50,7 +50,7 @@ class Model(ScalarFunction):
         self.scheduler = StepLR(self.optimizer, step_size=1, gamma=self.gamma)
 
         # 保存模型
-        self.interval_dump_seconds = 3600       # 模型保存间隔时间为 60 分钟
+        self.interval_dump_seconds = 360       # 模型保存间隔时间为 6 分钟
         self.last_dump_time = datetime.now()   # 上一次模型保存时间
 
         # 自定义指标
