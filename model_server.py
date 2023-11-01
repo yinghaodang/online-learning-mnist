@@ -13,7 +13,7 @@ from onml.models.mnist_cnn import Net
 def load_model():
     redis_params = dict(host='10.215.58.30', password='redis_password', port=6379, db=0)
     # model_name = "online_ml_model"
-    model_name = "test_batch_size_1"
+    model_name = "mnist-2023-10-31 19"
     r = redis.StrictRedis(**redis_params)
     model = r.get(model_name)
     buffer = io.BytesIO(model)

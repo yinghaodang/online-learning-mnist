@@ -2,6 +2,7 @@ import os
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import StreamTableEnvironment, EnvironmentSettings, DataTypes
 from pyflink.table.udf import ScalarFunction, udf
+from onml.models.mnist_cnn import Net
 
 
 # kafka地址, 消费者id
@@ -41,6 +42,7 @@ class Model(ScalarFunction):
         self.model_name = 'mnist-{}'.format(self.current_time)
         self.redis_params = dict(host='localhost', password='redis_password', port=6379, db=0)
         self.clf = Net()
+        self.load_model(self.current_time)
 
         # 机器学习超参数
         self.device = "cpu"
@@ -103,6 +105,19 @@ class Model(ScalarFunction):
         if (datetime.now() - self.last_dump_time).seconds >= self.interval_dump_seconds:
             print("loss is {}".format(loss))
         return pred[0][0]
+    
+    def load_model(self, key):
+        import io
+        import redis
+        import torch
+        from onml.models.mnist_cnn import Net
+
+        key = "online_ml_model"
+        r = redis.StrictRedis(**self.redis_params)
+        model_dict = r.get(key)
+        buffer = io.BytesIO(model_dict)
+        buffer.seek(0)
+        self.clf = torch.load(buffer)
 
     def dump_model(self):
         from datetime import datetime
